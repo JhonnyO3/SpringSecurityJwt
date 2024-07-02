@@ -3,13 +3,11 @@ package com.development.login_crud.security.jwt;
 import com.development.login_crud.nosql.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,14 +18,16 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+
     @Value("${security.jwt.secret}")
-    private String JWT_SECRET;
+    private  String JWT_SECRET;
 
     @Value("${security.jwt.expiration}")
     private Long JWT_EXPIRATION_TIME;
 
     @Value("${security.jwt.refresh.expiration}")
     private Long JWT_REFRESH_EXPIRATION_TIME;
+
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -43,7 +43,11 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody();
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String generateToken(User userDetails) {
@@ -66,15 +70,15 @@ public class JwtUtil {
 
     private String createToken(Map<String, Object> claims, User userDetails, long expiration) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getEmail())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey())
+                .claims(claims)
+                .subject(userDetails.getEmail())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Base64.getDecoder().decode(JWT_SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
