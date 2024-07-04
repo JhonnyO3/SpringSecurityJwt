@@ -5,7 +5,6 @@ import com.development.login_crud.config.exception.JwtAuthenticationException;
 import com.development.login_crud.config.exception.UserAlreadyExistsException;
 import com.development.login_crud.config.exception.UserNotFoundException;
 import jakarta.annotation.Nonnull;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
@@ -23,13 +22,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
+public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             @Nonnull HttpHeaders headers,
             @Nonnull HttpStatusCode status,
-            @Nonnull  WebRequest request) {
+            @Nonnull WebRequest request) {
 
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -43,7 +42,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiErrorMessage> handleUserNotFoundException(UserNotFoundException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleUserNotFoundException(UserNotFoundException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.NOT_FOUND, exception.getMessage());
 
@@ -51,7 +50,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiErrorMessage> handleUserAlreadyExistsException(UserAlreadyExistsException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
 
@@ -59,7 +58,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ApiErrorMessage> handleDataAcessException(DataAccessException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleDataAccessException(DataAccessException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
 
@@ -67,7 +66,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(JwtAuthenticationException.class)
-    public ResponseEntity<ApiErrorMessage> handleJwtException(JwtAuthenticationException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleJwtException(JwtAuthenticationException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.UNAUTHORIZED, exception.getMessage());
 
@@ -75,7 +74,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiErrorMessage> handleAccessDeniedException(AccessDeniedException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleAccessDeniedException(AccessDeniedException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.UNAUTHORIZED, exception.getMessage());
 
@@ -83,7 +82,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler   {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiErrorMessage> handleRuntimeException(DataAccessException exception, WebRequest request) {
+    public ResponseEntity<ApiErrorMessage> handleRuntimeException(DataAccessException exception) {
 
         ApiErrorMessage apiErrorMessage = new ApiErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
 

@@ -1,7 +1,5 @@
 package com.development.login_crud.config;
 
-import com.development.login_crud.config.custom.CustomAcessDeniedHandler;
-import com.development.login_crud.config.custom.CustomAuthenticationEntryPoint;
 import com.development.login_crud.security.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,6 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+
+import static com.development.login_crud.dto.Role.ADMIN;
+import static com.development.login_crud.dto.Role.MANAGER;
 
 @Configuration
 @EnableWebSecurity
@@ -48,12 +50,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(WHITE_LIST).permitAll()
+
+                        .requestMatchers("api/manager/*").hasAnyRole(ADMIN.name(), MANAGER.name())
+                        .requestMatchers("api/admin/**").hasAnyRole(ADMIN.name())
                         .anyRequest().authenticated()).addFilterBefore(authenticationManager, UsernamePasswordAuthenticationFilter.class)
+
+
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                         .accessDeniedHandler((request, response, accessDeniedException) ->
                                 response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage())
                         ))
+
                 .logout(logout ->
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)

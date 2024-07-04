@@ -8,4 +8,6 @@ public interface AuthenticationService {
     AuthenticationResponse saveUser(RegisterRequest userRequest);
 
     AuthenticationResponse authenticate(AuthenticateRequest authenticateRequest);
+
+    AuthenticationResponse register(RegisterRequest request);
 }

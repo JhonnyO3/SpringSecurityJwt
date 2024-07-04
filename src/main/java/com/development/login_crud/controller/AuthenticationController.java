@@ -4,6 +4,9 @@ import com.development.login_crud.dto.AuthenticateRequest;
 import com.development.login_crud.dto.AuthenticationResponse;
 import com.development.login_crud.dto.RegisterRequest;
 import com.development.login_crud.service.AuthenticationService;
+import com.development.login_crud.service.LogoutService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +25,10 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
 
+
+
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody  @Valid RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody @Valid RegisterRequest request) {
 
         return ResponseEntity.ok(authenticationService.saveUser(request));
     }

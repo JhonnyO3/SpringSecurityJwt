@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.util.List;
 
+import static com.development.login_crud.dto.Role.ADMIN;
+
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -38,6 +40,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Override
+    public AuthenticationResponse register(RegisterRequest request) {
+        var user = User.builder()
+                .username(request.getUsername())
+                .email(request.getUserEmail())
+                .password(request.getUserPassword())
+                .role(request.getRole())
+                .build();
+
+        var savedUser = userRepository.save(user);
+        var jwtToken = jwtUtil.generateToken(user);
+
+        saveUserToken( savedUser ,jwtToken);
+
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .build();
+
+    }
+
 
     @Override
     public AuthenticationResponse saveUser(RegisterRequest userRequest) {
@@ -46,6 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(userRequest.getUserEmail())
                 .username(userRequest.getUsername())
                 .password(passwordEncoder.encode(userRequest.getUserPassword()))
+                .role(userRequest.getRole())
                 .build();
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -54,13 +77,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User save = userRepository.save(user);
         var jwtToken = jwtUtil.generateToken(user);
-        var refreshToken = jwtUtil.generateRefreshToken(user);
+//        var refreshToken = jwtUtil.generateRefreshToken(user);
 
         saveUserToken(save, jwtToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+//                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -76,16 +99,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow();
 
         var jwtToken = jwtUtil.generateToken(user);
-        var refreshToken = jwtUtil.generateRefreshToken(user);
+//        var refreshToken = jwtUtil.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+//                .refreshToken(refreshToken)
                 .build();
 
     }
+
+
 
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()

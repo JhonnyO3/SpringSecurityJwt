@@ -1,5 +1,6 @@
 package com.development.login_crud.nosql.entity;
 
+import com.development.login_crud.dto.Role;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -23,6 +24,8 @@ public class User implements UserDetails {
     private String email;
 
     private String password;
+
+    private Role role;
 
     private List<Token> tokens;
 
